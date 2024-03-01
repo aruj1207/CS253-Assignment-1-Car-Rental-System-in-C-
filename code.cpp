@@ -39,8 +39,9 @@ private:
     int customerRecord;
     string c_name; 
     string password;
+    float current_bill;
 public:
-    Customer(int _id, int _customerRecord) : id(_id), fineDue(0), customerRecord(_customerRecord) {}
+    Customer(int _id, int _customerRecord) : id(_id), fineDue(0),current_bill(0), customerRecord(_customerRecord) {}
     void setPass(const string& pass){password=pass;}
     string getPass(){return password;}
     void setName(const string& newName) { c_name = newName; }
@@ -65,6 +66,11 @@ public:
     static void deleteCustomer(int id);
     static Customer* searchCustomer(int id);
     vector<Car*>& getRentedCars() { return rentedCars; } // Public accessor for rentedCars
+    float calculateBill() const {
+        // Calculate total bill by adding fine due and any other charges
+        return current_bill;
+    }
+    void clearBill();
 };
 class Employee {
 private:
@@ -74,8 +80,9 @@ private:
     int employeeRecord;
     string e_name;
     string password;
+    float current_bill;
 public:
-    Employee(int _id, int _employeeRecord) : id(_id), fineDue(0), employeeRecord(_employeeRecord) {}
+    Employee(int _id, int _employeeRecord) : id(_id), fineDue(0),current_bill(0), employeeRecord(_employeeRecord) {}
     //member function to set the customer name
     void setPass(const string& pass){password=pass;}
     string getPass(){return password;}
@@ -101,6 +108,11 @@ public:
     static void deleteEmployee(int id);
     static Employee* searchEmployee(int id);
     vector<Car*>& getRentedCars() { return rentedCars; } // Public accessor for rentedCars
+    float calculateBill() const {
+        // Calculate total bill by adding fine due and any other charges
+        return current_bill;
+    }
+    void clearBill();
 };
 // I have created a manager class but it was not specified to use this in the
 class Manager : public Employee {
@@ -329,6 +341,11 @@ void Customer::returnCar(Car* car) {
         }
     }
     time_t currentTime = time(0);
+
+    double rentalDurationWeeks = difftime(currentTime, car->getReturnDate()-(7 * 24 * 60 * 60)) / (7 * 24 * 60 * 60);
+    double rentalBalance = rentalDurationWeeks * 100;
+    current_bill += rentalBalance;
+
     if (difftime(currentTime, car->getReturnDate()) > 0) {
         fineDue += difftime(currentTime, car->getReturnDate()) / (24 * 60 * 60) * 10;
     }
@@ -344,6 +361,10 @@ void Customer::browseRentedCars() {
 
 void Customer::clearDue() {
     fineDue = 0;
+    saveToFile();
+}
+void Customer::clearBill() {
+    current_bill = 0;
     saveToFile();
 }
 
@@ -428,6 +449,10 @@ void Employee::returnCar(Car* car) {
         }
     }
     time_t currentTime = time(0);
+    double rentalDurationWeeks = difftime(currentTime, car->getReturnDate()-(7 * 24 * 60 * 60)) / (7 * 24 * 60 * 60);
+    double rentalBalance = rentalDurationWeeks * 85;
+    current_bill += rentalBalance;
+
     if (difftime(currentTime, car->getReturnDate()) > 0) {
         fineDue += difftime(currentTime, car->getReturnDate()) / (24 * 60 * 60) * 10;
     }
@@ -444,6 +469,10 @@ void Employee::browseRentedCars() {
 void Employee::clearDue() {
     fineDue = 0;
     saveToFile();
+}
+void Employee::clearBill() {
+    current_bill= 0;
+
 }
 
 void Employee::saveToFile() {
@@ -670,7 +699,7 @@ int main() {
                                 cout<<"Press 1 to see all the cars\n";
                                 cout<<"Press 2 to view cars and their due date issued by you\n";
                                 cout<<"Press 3 to check if a car is available for issue or not\n";
-                                cout<<"Press 4 to view the fine\n";
+                                cout<<"Press 4 to view bill (only after returning the car) the fine\n";
                                 cout<<"Press 5 to issue a car\n";
                                 cout<<"Press 6 to return a car\n";
                                 cout<<"Press 7 to clear your fine\n";
@@ -735,6 +764,7 @@ int main() {
                                         // // Search for the customer
                                         // Customer* customer = Customer::searchCustomer(customerId);
                                         if (customer) {
+                                            cout << "Your bill is: $" << customer->calculateBill() <<endl;
                                             cout << "Your fine is: $" << customer->getFineDue() << endl;
                                         } else {
                                             cout << "Customer not found.\n";
@@ -799,15 +829,17 @@ int main() {
                                     case '7': {
                                         // Display the fine due
                                         cout << "Your current fine due is: $" << customer->getFineDue() << endl;
+                                        cout << "Your current bill due is: $" << customer->calculateBill() << endl;
 
                                         // Ask if the customer wants to clear the fine
-                                        cout << "Do you want to clear your fine? (1 for Yes, 2 for No): ";
+                                        cout << "Do you want to clear your fine & bill? (1 for Yes, 2 for No): ";
                                         char choice;
                                         cin >> choice;
 
                                         if (choice == '1') {
                                             // Clear the fine
                                             customer->clearDue();
+                                            customer->clearBill();
                                             cout << "Fine cleared successfully.\n";
                                         } else if (choice == '2') {
                                             cout << "Fine not cleared.\n";
@@ -871,7 +903,7 @@ int main() {
                                 cout<<"Press 1 to see all the cars\n";
                                 cout<<"Press 2 to view cars and their due date issued by you\n";
                                 cout<<"Press 3 to check if a car is available for issue or not\n";
-                                cout<<"Press 4 to view the fine\n";
+                                cout<<"Press 4 to view the bill (only after returning the car) and fine\n";
                                 cout<<"Press 5 to issue a car\n";
                                 cout<<"Press 6 to return a car\n";
                                 cout<<"Press 7 to clear your fine\n";
@@ -936,6 +968,7 @@ int main() {
                                         // // Search for the employee
                                         // Employee* employee = Employee::searchEmployee(employeeId);
                                         if (employee) {
+                                            cout << "Your bill is: $" << employee->calculateBill() <<endl;
                                             cout << "Your fine is: $" << employee->getFineDue() << endl;
                                         } else {
                                             cout << "employee not found.\n";
@@ -999,16 +1032,18 @@ int main() {
 
                                     case '7': {
                                         // Display the fine due
-                                        cout << "Your current fine due is: $" << employee->getFineDue() << endl;
+                                        cout << "Your current fine due is: $\n" << employee->getFineDue() << endl;
+                                        cout << "Your current bill due is: $\n" << employee->calculateBill() << endl;
 
                                         // Ask if the customer wants to clear the fine
-                                        cout << "Do you want to clear your fine? (1 for Yes, 2 for No): ";
+                                        cout << "Do you want to clear your fine & bill? (1 for Yes, 2 for No): ";
                                         char choice;
                                         cin >> choice;
 
                                         if (choice == '1') {
                                             // Clear the fine
                                             employee->clearDue();
+                                            employee->clearBill();
                                             cout << "Fine cleared successfully.\n";
                                         } else if (choice == '2') {
                                             cout << "Fine not cleared.\n";
