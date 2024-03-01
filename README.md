@@ -4,9 +4,25 @@ This program code.cpp is a car rental management system implemented in C++. It p
 
 IMPORTANT NOTES:
 The password of the manager/admin is A ( Just Capital A ).
-The password of the all the initial employees and customer are like password#n where n is the user ID.
+The password of the all the initial employees and customer are like password#{n} where n is the user ID.
 For example , Password for Customer with userid=1 is "password1".
 similarly password for employee with userid=102 is "password102".
+Rating would be from -5 to 5. Depending on the conditions of the car and timely return.
+If there is some error with password or name of a user , the user should contact the admin to fix or change his details.
+
+IMPORTANT FUNCTIONALITIES:
+You need to run the code simultaneously.
+**If you log out of system and erase the files ; the files would be new the next time you would write . It would be from start , with initial 5 employees and 5 customers as predefined.**
+New txt files will be added if you add new users.
+Txt files will be deleted if you delete existing users.
+The Bill for customer is with no discount ; while for employee is with 15% discount.
+Manager is only 1 , but class has been made properly for the manager.(It was not defined properly in the Problem Statement leading to confusion)
+
+The number of total cars allowed to rent is 3 for employees and 2 for customers.
+
+The customer and employee record/ rating should be >= 1 to obtain a car , else they will not be able to rent cars.
+
+
 
 
 1. Classes:
@@ -32,14 +48,13 @@ similarly password for employee with userid=102 is "password102".
 
 4. Additional Notes:
    - Error handling and user input validation are minimal in this code and can be further enhanced for robustness.
-   - Passwords are stored in plain text, which is not secure. In practice, passwords should be encrypted.
    - The program utilizes file I/O for saving and loading data. Each customer and employee is associated with a text file for data storage.
-   - The program demonstrates basic object-oriented principles such as inheritance, encapsulation, and polymorphism.
+   - The program demonstrates basic object-oriented principles such as inheritance and polymorphism.
 
 5. Requirements:
    - This program requires a C++ compiler that supports C++11 features.
    - The program uses standard C++ libraries such as iostream, fstream, sstream, vector, string, unordered_map, and ctime.
 
 6. Execution:
-   - Compile the source code with a C++ compiler and execute the compiled to run the program.
+   - **Compile the source code with a C++ compiler and execute the compiled to run the program.**
 
