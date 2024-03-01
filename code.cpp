@@ -7,7 +7,7 @@
 #include <ctime>
 
 using namespace std;
-
+//Class Car
 class Car {
 private:
     string model;
