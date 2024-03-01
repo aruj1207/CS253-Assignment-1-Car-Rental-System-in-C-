@@ -15,9 +15,7 @@ private:
     bool available;
     time_t returnDate;
 public:
-    Car(string _model, string _condition) : model(_model), condition(_condition), available(true) {
-
-    }
+    Car(string _model, string _condition) : model(_model), condition(_condition), available(true) {}
     void setCondition(const string& newCondition) {
         condition = newCondition;
     }
@@ -29,26 +27,25 @@ public:
     void showDueDate();
     string getModel() const { return model; }
     string getCondition() const { return condition; }
-    time_t getReturnDate() const { return returnDate; } // Added public accessor
+    time_t getReturnDate() const { 
+        return returnDate; 
+    }
 };
-
 class Customer {
 private:
     int id;
     vector<Car*> rentedCars;
     float fineDue;
     int customerRecord;
-    string c_name; // New member variable for customer name
+    string c_name; 
     string password;
 public:
     Customer(int _id, int _customerRecord) : id(_id), fineDue(0), customerRecord(_customerRecord) {}
-
-    // New member function to set the customer name
     void setPass(const string& pass){password=pass;}
     string getPass(){return password;}
     void setName(const string& newName) { c_name = newName; }
     string getName() const { return c_name; }
-    // Public member functions to access and modify private members
+
     void setId(int newId) { id = newId; }
     void setCustomerRecord(int newCustomerRecord) { customerRecord = newCustomerRecord; }
     int getId() const {
@@ -69,8 +66,6 @@ public:
     static Customer* searchCustomer(int id);
     vector<Car*>& getRentedCars() { return rentedCars; } // Public accessor for rentedCars
 };
-
-
 class Employee {
 private:
     int id;
@@ -81,12 +76,12 @@ private:
     string password;
 public:
     Employee(int _id, int _employeeRecord) : id(_id), fineDue(0), employeeRecord(_employeeRecord) {}
-    // New member function to set the customer name
+    //member function to set the customer name
     void setPass(const string& pass){password=pass;}
     string getPass(){return password;}
     void setName(const string& newName) { e_name = newName; }
     string getName() const { return e_name; }
-    // Public member functions to access and modify private members
+    //member functions to access and modify private members
     void setId(int newId) { id = newId; }
     void setEmployeeRecord(int newEmployeeRecord) { employeeRecord = newEmployeeRecord; }
     int getId() const {
@@ -107,6 +102,7 @@ public:
     static Employee* searchEmployee(int id);
     vector<Car*>& getRentedCars() { return rentedCars; } // Public accessor for rentedCars
 };
+// I have created a manager class but it was not specified to use this in the
 class Manager : public Employee {
 public:
     Manager(int _id, int _employeeRecord) : Employee(_id, _employeeRecord) {}
@@ -227,11 +223,9 @@ void Manager::updateCar(const string& model, const Car& car,vector<Car*>& cars_s
 void Manager::deleteCar(const string& model ,vector<Car*>& cars_set ) {
     // string model;
     bool found = false;
-
-    //                             // Prompt the user to enter the model of the car to delete
-    //                             cout << "Enter the model of the car to delete: ";
-    //                             cin >> model;
-
+    // // Prompt the user to enter the model of the car to delete
+    //     cout << "Enter the model of the car to delete: ";
+    //                     cin >> model;
     // Iterate through the vector or database of cars
     for (auto it = cars_set.begin(); it != cars_set.end(); ++it) {
         if ((*it)->getModel() == model) {
@@ -242,19 +236,16 @@ void Manager::deleteCar(const string& model ,vector<Car*>& cars_set ) {
             break;
         }
     }
-
     if (!found) {
         cout << "Car not found.\n";
     }
 }
-
 void Manager::viewAllCars() {
     cout << "All Cars:\n";
     for (const auto& pair : Car::carDatabase) {
         cout << "Model: " << pair.first << ", Condition: " << pair.second->getCondition() << endl;
     }
 }
-
 void Manager::viewRentedCars() {
     cout << "Cars Rented:\n";
     for (const auto& pair : Customer::customerDatabase) {
@@ -266,7 +257,7 @@ void Manager::viewRentedCars() {
         }
     }
 }
-
+// These are described for extra usage
 
 unordered_map<int, Customer*> Customer::customerDatabase;
 unordered_map<int, Employee*> Employee::employeeDatabase;
@@ -281,23 +272,51 @@ void Car::returnCar() {
 }
 
 void Car::setReturnDate(int days) {
+    
     returnDate = time(0) + days * 24 * 60 * 60;
 }
 
 void Car::showDueDate() {
-    cout << "Due date: " << ctime(&returnDate);
+    // std::time_t currentTime = returnDate;
+    // std::tm* dueTime = std::localtime(&currentTime);
+    // char buffer[80];
+    // std::strftime(buffer, 80, "%Y-%m-%d %I:%M:%S %p", dueTime);
+    // std::cout << "Due date: " << buffer << std::endl;
+
+    if (returnDate != 0) {
+            std::time_t currentTime = returnDate;
+            std::tm* dueTime = std::localtime(&currentTime);
+
+            char buffer[80];
+            std::strftime(buffer, 80, "%Y-%m-%d %I:%M:%S %p", dueTime);
+
+            std::cout << "Due date: " << buffer << std::endl;
+        } 
+    else {
+            std::cout << "Due date is not set." << std::endl;
+    }
+    //cout << "Due date: " << ctime(&returnDate);
 }
 
 void Customer::rentCar(Car* car) {
     // Customers are allowed to own lesser cars than employees
-    if (customerRecord >= 0 && rentedCars.size() < 2 && car->isAvailable()) {
+    if (customerRecord >= 1 && rentedCars.size() < 2 && car->isAvailable()) {
         rentedCars.push_back(car);
         car->rent();
         car->setReturnDate(7);
         cout << "Car rented successfully!" << endl;
         saveToFile();
-    } else {
-        cout << "Unable to rent the car. Please check your customer record or car availability." << endl;
+    } 
+    else {
+        if(customerRecord<0){
+            cout<<"Customer Record not enough.\n";
+        }
+        else if(rentedCars.size() >= 2){
+            cout<<"You can't rent so many cars \n";
+        }
+        else{
+            cout << "Unable to rent the car. Please check car availability." << endl;
+        }
     }
 }
 
@@ -380,14 +399,23 @@ Customer* Customer::searchCustomer(int id) {
 
 void Employee::rentCar(Car* car) {
     // Employees
-    if (employeeRecord >= 0 && rentedCars.size() < 3 && car->isAvailable()) {
+    if (employeeRecord >= 1 && rentedCars.size() < 3 && car->isAvailable()) {
         rentedCars.push_back(car);
         car->rent();
         car->setReturnDate(7); // Set return date to 7 days from now
         cout << "Car rented successfully!" << endl;
         saveToFile();
-    } else {
-        cout << "Unable to rent the car. Please check your employee record or car availability." << endl;
+    } 
+    else {
+        if(employeeRecord<0){
+            cout<<"Employee Record not enough.\n";
+        }
+        else if(rentedCars.size() >= 3){
+            cout<<"You can't rent so many cars \n";
+        }
+        else{
+            cout << "Unable to rent the car. Please check car availability." << endl;
+        }
     }
 }
 
@@ -498,6 +526,7 @@ int main() {
     Car car23("Infiniti", "Good");
     Car car24("Land Rover", "Average");
     Car car25("Porsche", "Good");
+
     vector<Car*> cars_set;
 
     // Creating and storing cars_set
@@ -531,71 +560,100 @@ int main() {
         Car::carDatabase[cars_set[i-1]->getModel()]=cars_set[i-1];
     }
     // Creating customers
+    
+    // Adding customers to the database
+
+    
     Customer customer1(1, 5);
     Customer customer2(2, 3);
     Customer customer3(3, 4);
     Customer customer4(4, 2);
     Customer customer5(5, 1);
 
+    customer1.setName("Aarav");
+    customer2.setName("Aisha");
+    customer3.setName("Dev");
+    customer4.setName("Isha");
+    customer5.setName("Kiran");
+
     customer1.setPass("password1");
     customer2.setPass("password2");
     customer3.setPass("password3");
     customer4.setPass("password4");
     customer5.setPass("password5");
-    // Adding customers to the database
     Customer::addCustomer(1, &customer1);
     Customer::addCustomer(2, &customer2);
     Customer::addCustomer(3, &customer3);
     Customer::addCustomer(4, &customer4);
     Customer::addCustomer(5, &customer5);
+    
+    
 
 
     // Creating employees
+    
+
+    
     Employee employee1(101, 5);
     Employee employee2(102, 3);
     Employee employee3(103, 4);
     Employee employee4(104, 2);
     Employee employee5(105, 1);
 
+    employee1.setName("Vikram");
+    employee2.setName("Priya");
+    employee3.setName("Rahul");
+    employee4.setName("Neha");
+    employee5.setName("Amit");
     // Adding employees to the database
     Employee::addEmployee(101, &employee1);
     Employee::addEmployee(102, &employee2);
     Employee::addEmployee(103, &employee3);
     Employee::addEmployee(104, &employee4);
     Employee::addEmployee(105, &employee5);
+
+    employee1.setPass("password101");
+    employee2.setPass("password102");
+    employee3.setPass("password103");
+    employee4.setPass("password104");
+    employee5.setPass("password105");
+    
     //Password for employees
-    employee1.setPass("password1");
-    employee2.setPass("password2");
-    employee3.setPass("password3");
-    employee4.setPass("password4");
-    employee5.setPass("password5");
+    
 
     bool exitProgram = false;
     while (!exitProgram) {
-        int cinput1;
+        char cinput1;
         cout<<"---------------------------------------------------------------------\n";
         cout<<"\n\nWelcome to the Car Rental System!\n\n";
         cout<<"1. Press 1 to log in : \n";
-        cout<<"2. Press 2 to exit\n\n\n";
+        cout<<"X. Press X to exit and erase the system\n\n\n";
         cout<<"---------------------------------------------------------------------\n";
         cin >> cinput1;
-        if(cinput1==1){
+        
+        if(cinput1=='1'){
+            int systemboot=1;
+            while(systemboot){
             cout<<"---------------------------------------------------------------------\n";
             cout<<"Login as User or Admin ??\n\n";
-            int cinput2;
+            char cinput2;
             cout<<"1. Press 1 to log in as USER : \n";
-            cout<<"2. Press 2 to log in as ADMIN : \n\n";
+            cout<<"2. Press 2 to log in as ADMIN / MANAGER: \n\n";
+            cout<<"B. Press B to go back to System Page\n";
             cout<<"---------------------------------------------------------------------\n";
             cin>>cinput2;
-            if(cinput2==1){
+
+            if(cinput2=='1'){
                 cout<<"---------------------------------------------------------------------\n";
                 cout << "Enter your user type:\n";
                 cout << "1. Customer\n";
                 cout << "2. Employee\n";
+                cout<<"Press any other number to go back to Main Menu\n";
+                //cout << "3. Go back\n";
                 cout<<"---------------------------------------------------------------------\n";
-                int usertype;
+                char usertype;
                 cin>>usertype;
-                if(usertype==1){
+                if(usertype=='1'){
                     int id;
                     cout<<"Dear Customer ,Enter your id\n ";
                     cin>>id;
@@ -610,12 +668,12 @@ int main() {
                                 cout<<"---------------------------------------------------------------------\n";
                                 cout<<"\nYou have been logged in as Customer\n";
                                 cout<<"Press 1 to see all the cars\n";
-                                cout<<"Press 2 to view cars issued by you\n";
+                                cout<<"Press 2 to view cars and their due date issued by you\n";
                                 cout<<"Press 3 to check if a car is available for issue or not\n";
                                 cout<<"Press 4 to view the fine\n";
                                 cout<<"Press 5 to issue a car\n";
                                 cout<<"Press 6 to return a car\n";
-                                cout<<"Press 7 to know your fine\n";
+                                cout<<"Press 7 to clear your fine\n";
                                 cout<<"Press 8 to logout\n";
                                 cout<<"---------------------------------------------------------------------\n";
 
@@ -631,7 +689,9 @@ int main() {
                                             if (car->isAvailable()) {
                                                 cout << ", Available: Yes\n";
                                             } else {
-                                                cout << ", Available: No, Return Date: " << car->getReturnDate() << endl;
+                                                cout << ", Available: No, : ";
+                                                car->showDueDate();
+                                                cout<<endl;
                                             }
                                         }
                                         break;
@@ -641,6 +701,7 @@ int main() {
                                         cout << "Cars issued by you:\n";
                                         for (Car* car : customer->getRentedCars()) {
                                             cout << "Model: " << car->getModel() << ", Condition: " << car->getCondition() << endl;
+                                            car->showDueDate();
                                         }
                                         break;
                                     }
@@ -694,7 +755,7 @@ int main() {
                                                 customer->rentCar(car);
                                                 // Update the car's availability
                                                 found = true;
-                                                cout << "Car rented successfully." << endl;
+                                                //cout << "Car rented successfully." << endl;
                                                 break;
                                             }
                                         }
@@ -714,13 +775,13 @@ int main() {
                                         }
 
                                         // Ask the customer to choose the car they want to return
-                                        int choice;
+                                        char choice;
                                         cout << "Enter the number corresponding to the car you want to return (or 0 to cancel): ";
                                         cin >> choice;
 
-                                        if (choice >= 1 && choice <= customer->getRentedCars().size()) {
+                                        if (choice >= 49 && choice <= customer->getRentedCars().size()+48) {
                                             // Get the chosen car
-                                            Car* chosenCar = customer->getRentedCars()[choice - 1];
+                                            Car* chosenCar = customer->getRentedCars()[(int)choice -48 - 1];
                                             
                                             // Return the car
                                             customer->returnCar(chosenCar);
@@ -729,7 +790,7 @@ int main() {
                                             
                                             cout << "Car returned successfully." << endl;
                                         } 
-                                        else if (choice != 0) {
+                                        else if (choice != 48) {
                                             cout << "Invalid choice." << endl;
                                         }
                                         break;
@@ -738,33 +799,58 @@ int main() {
                                     case '7': {
                                         // Display the fine due
                                         cout << "Your current fine due is: $" << customer->getFineDue() << endl;
+
+                                        // Ask if the customer wants to clear the fine
+                                        cout << "Do you want to clear your fine? (1 for Yes, 2 for No): ";
+                                        char choice;
+                                        cin >> choice;
+
+                                        if (choice == '1') {
+                                            // Clear the fine
+                                            customer->clearDue();
+                                            cout << "Fine cleared successfully.\n";
+                                        } else if (choice == '2') {
+                                            cout << "Fine not cleared.\n";
+                                        } 
+                                        else {
+                                            cout << "Invalid choice.\n";
+                                        }
                                         break;
                                     }
 
+
                                     case '8': {
+                                        cout<<"---------------------------------------------------------------------\n";
                                         cout<< "Logging Out\n";
                                         cout<<"Thanks Customer\n";
+                                        cout<<"---------------------------------------------------------------------\n";
                                         userbreak=false;
                                         break;
                                     }
                                     default:
+                                    cout<<"---------------------------------------------------------------------\n";
                                         cout << "Invalid choice. Please try again.\n";
+                                        cout<<"---------------------------------------------------------------------\n";
                                         break;
                                 }
                             }// while wala
                         }
                         else{
+                            cout<<"---------------------------------------------------------------------\n";
                             cout<<"Wrond PASSWORD\n";
+                            cout<<"---------------------------------------------------------------------\n";
                             continue;
                         }
                     }
                     else{
+                        cout<<"---------------------------------------------------------------------\n";
                         cout<<"User ID doesn't exist\n";
+                        cout<<"---------------------------------------------------------------------\n";
                         continue;
                     }
 
                 }
-                else if(usertype==2){
+                else if(usertype=='2'){
                     //BHARO BC
                     int id;
                     cout<<"Dear employee ,Enter your id\n";
@@ -783,12 +869,12 @@ int main() {
                                 cout<<"---------------------------------------------------------------------\n";
                                 cout<<"\nYou have been logged in as employee\n";
                                 cout<<"Press 1 to see all the cars\n";
-                                cout<<"Press 2 to view cars issued by you\n";
+                                cout<<"Press 2 to view cars and their due date issued by you\n";
                                 cout<<"Press 3 to check if a car is available for issue or not\n";
                                 cout<<"Press 4 to view the fine\n";
                                 cout<<"Press 5 to issue a car\n";
                                 cout<<"Press 6 to return a car\n";
-                                cout<<"Press 7 to know your fine\n";
+                                cout<<"Press 7 to clear your fine\n";
                                 cout<<"Press 8 to logout\n";
                                 cout<<"---------------------------------------------------------------------\n";
 
@@ -804,7 +890,9 @@ int main() {
                                             if (car->isAvailable()) {
                                                 cout << ", Available: Yes\n";
                                             } else {
-                                                cout << ", Available: No, Return Date: " << car->getReturnDate() << endl;
+                                                cout << ", Available: No,: ";
+                                                car->showDueDate();
+                                                cout<<endl;
                                             }
                                         }
                                         break;
@@ -814,6 +902,7 @@ int main() {
                                         cout << "Cars issued by you:\n";
                                         for (Car* car : employee->getRentedCars()) {
                                             cout << "Model: " << car->getModel() << ", Condition: " << car->getCondition() << endl;
+                                            car->showDueDate();
                                         }
                                         break;
                                     }
@@ -867,7 +956,7 @@ int main() {
                                                 employee->rentCar(car);
                                                 // Update the car's availability
                                                 found = true;
-                                                cout << "Car rented successfully." << endl;
+                                                //cout << "Car rented successfully." << endl;
                                                 break;
                                             }
                                         }
@@ -891,9 +980,9 @@ int main() {
                                         cout << "Enter the number corresponding to the car you want to return (or 0 to cancel): ";
                                         cin >> choice;
 
-                                        if (choice >= 1 && choice <= employee->getRentedCars().size()) {
+                                        if (choice >= 49 && choice <= employee->getRentedCars().size()+48) {
                                             // Get the chosen car
-                                            Car* chosenCar = employee->getRentedCars()[choice - 1];
+                                            Car* chosenCar = employee->getRentedCars()[(int)choice -48 - 1];
                                             
                                             // Return the car
                                             employee->returnCar(chosenCar);
@@ -902,7 +991,7 @@ int main() {
                                             
                                             cout << "Car returned successfully." << endl;
                                         } 
-                                        else if (choice != 0) {
+                                        else if (choice != 48) {
                                             cout << "Invalid choice." << endl;
                                         }
                                         break;
@@ -911,12 +1000,29 @@ int main() {
                                     case '7': {
                                         // Display the fine due
                                         cout << "Your current fine due is: $" << employee->getFineDue() << endl;
+
+                                        // Ask if the customer wants to clear the fine
+                                        cout << "Do you want to clear your fine? (1 for Yes, 2 for No): ";
+                                        char choice;
+                                        cin >> choice;
+
+                                        if (choice == '1') {
+                                            // Clear the fine
+                                            employee->clearDue();
+                                            cout << "Fine cleared successfully.\n";
+                                        } else if (choice == '2') {
+                                            cout << "Fine not cleared.\n";
+                                        } else {
+                                            cout << "Invalid choice.\n";
+                                        }
                                         break;
                                     }
 
                                     case '8': {
+                                        cout<<"---------------------------------------------------------------------\n";
                                         cout<< "Logging Out\n";
                                         cout<<"Thanks employee\n";
+                                        cout<<"---------------------------------------------------------------------\n";
                                         userbreak=false;
                                         break;
                                     }
@@ -927,39 +1033,42 @@ int main() {
                             }// while wala
                         }
                         else{
+                            cout<<"---------------------------------------------------------------------\n";
                             cout<<"Wrond PASSWORD\n";
+                            cout<<"---------------------------------------------------------------------\n";
                             continue;
                         }
                     }
                     else{
+                        cout<<"---------------------------------------------------------------------\n";
                         cout<<"User ID doesn't exist\n";
+                        cout<<"---------------------------------------------------------------------\n";
                         continue;
                     }
 
                 }
-
                 else{
                     cout<<"---------------------------------------------------------------------\n";
-                    cout<< "\n\n Wrong Input ; Directing to Home Page\n\n" <<endl;
+                    cout<< "\n\n Wrong Input ; Directing to Login Page\n\n" <<endl;
                     cout<<"---------------------------------------------------------------------\n";
                     continue;
                 }
             }
-            else if(cinput2==2){
+            else if(cinput2=='2'){
                 string master_attempt;
                 cout<<"---------------------------------------------------------------------\n";
-                cout<<"Enter admin password\n";
+                cout<<"Enter manager password\n";
                 cout<<"---------------------------------------------------------------------\n";
                 cin>> master_attempt;
                 if(master_attempt==masterkey){
                     cout<<"---------------------------------------------------------------------\n";
-                    cout<<" WELCOME ADMIN ;)\n";
+                    cout<<" WELCOME MANAGER ;)\n";
                     cout<<"---------------------------------------------------------------------\n\n\n\n\n";
                     // MAIN MENU
                     int adminbreak=1;
                     while (adminbreak) {
                         cout << "*********************************************************************\n";
-                        cout << "\nWelcome! You are logged in as admin.\n\n";
+                        cout << "\nWelcome! You are logged in as manager.\n\n";
                         cout << "Press 1 to add a user\n";
                         cout << "Press 2 to update a user\n";
                         cout << "Press 3 to delete a user\n";
@@ -967,96 +1076,111 @@ int main() {
                         cout << "Press 5 to update a car\n";
                         cout << "Press 6 to delete a car\n";
                         cout << "Press 7 to see all cars issued to a particular user\n";
-                        cout << "Press 8 to see which car is issued to which user\n";
-                        cout << "Press 9 to view all users\n";
-                        cout << "Press 0 to view all cars\n";
+                        cout << "Press 8 to see the entire LIST in which car is issued to which user\n";
+                        cout << "Press 9 to VIEW all users , their id, name and their passwords\n";
+                        cout << "Press 0 to VIEW all cars\n";
                         cout << "Press d to show due date of a car\n";
                         cout << "Press l to logout\n";
                         cout << "*********************************************************************\n";
-
                         char c;
                         cin >> c;
                         switch (c) {
                             case '1': {
-                                int user_type;
+                                char user_type;
+                                cout<<"---------------------------------------------------------------------\n";
                                 cout << "Enter your user type:\n";
                                 cout << "1. Customer\n";
                                 cout << "2. Employee\n";
+                                cout<<"---------------------------------------------------------------------\n";
                                 cin >> user_type;
                                 switch (user_type) {
-                                    case 1: {
+                                    case '1': {
                                         int id, customerRecord;
+                                        string customer_name;
                                         cout << "Enter customer ID: ";
                                         cin >> id;
-                                        cout << "Enter customer record: ";
-                                        cin >> customerRecord;
-
-                                        // Check if the customer already exists
                                         if (Customer::searchCustomer(id) != nullptr) {
                                             cout << "Customer with ID " << id << " already exists.\n";
                                         } 
+                                        
+
+                                        // Check if the customer already exists
+                                        
                                         else {
+                                            cout << "Enter customer Name: ";
+                                        cin >> customer_name;
+                                        cout << "Enter customer record: (Rating of User { Range : 0 - 5 } )";
+                                        cin >> customerRecord;
                                             // Create a new customer
                                             Customer* newCustomer = new Customer(id, customerRecord);
                                             Customer::addCustomer(id, newCustomer);
+                                            newCustomer->setName(customer_name);
                                             cout << "Customer added successfully.\n";
 
-                                            cout<<"Do you want to set password for customer ?\n";
-                                            cout<<"1 for Yes , 2 for No\n";
-                                            int a1;
-                                            cin>>a1;
-                                            if(a1==1){
-                                                cout << "Enter password for the customer: ";
-                                                string password;
-                                                cin >> password;
-                                                newCustomer->setPass(password);
-                                                cout << "Password set successfully.\n";
-                                                break;
-                                            }
-                                            else if(a1==2){
-                                                break;
-                                            }
-                                            else{
-                                                cout<<"Wrong Input\n";
-                                            }
+                                            //cout<<"Do you want to set password for customer ?\n";
+                                            //cout<<"1 for Yes , 2 for No\n";
+                                            //int a1;
+                                            //cin>>a1;
+                                            //if(a1==1){
+                                            cout << "Enter password for the customer: ";
+                                            string password;
+                                            cin >> password;
+                                            newCustomer->setPass(password);
+                                            cout << "Password set successfully.\n";
+                                            break;
+                                            //}
+                                            //else if(a1==2){
+                                            //    break;
+                                            //}
+                                            // else{
+                                            //     cout<<"Wrong Input\n";
+                                            // }
                                         }
                                         break;
                                     }
-                                    case 2: {
+                                    case '2': {
                                         int id, EmployeeRecord;
+                                        string employee_name;
                                         cout << "Enter Employee ID: ";
                                         cin >> id;
-                                        cout << "Enter Employee record: ";
-                                        cin >> EmployeeRecord;
-
-                                        // Check if the Employee already exists
                                         if (Employee::searchEmployee(id) != nullptr) {
                                             cout << "Employee with ID " << id << " already exists.\n";
                                         } 
+                                        
+
+                                        // Check if the Employee already exists
+                                        
                                         else {
+                                            cout << "Enter Employee Name: ";
+                                        cin >> employee_name;
+                                        cout << "Enter Employee record: (Rating of User { Range : 0 - 5 } )";
+                                        cin >> EmployeeRecord;
                                             // Create a new Employee
                                             Employee* newEmployee = new Employee(id, EmployeeRecord);
                                             Employee::addEmployee(id, newEmployee);
+                                            newEmployee->setName(employee_name);
+                                            
                                             cout << "Employee added successfully.\n";
 
-                                            cout<<"Do you want to set password for employee ?\n";
-                                            cout<<"1 for Yes , 2 for No\n";
-                                            int a1;
-                                            cin>>a1;
-                                            if(a1==1){
-                                                cout << "Enter password for the employee: ";
-                                                string password;
-                                                cin >> password;
-                                                newEmployee->setPass(password);
-                                                cout << "Password set successfully.\n";
-                                                break;
-                                            }
-                                            else if(a1==2){
-                                                break;
-                                            }
-                                            else{
-                                                cout<<"Wrong Input\n";
-                                            }
+                                            cout << "Enter password for the customer: ";
+                                            string password;
+                                            cin >> password;
+                                            newEmployee->setPass(password);
+                                            cout << "Password set successfully.\n";
+                                            break;
+                                            //     cout << "Enter password for the employee: ";
+                                            //     string password;
+                                            //     cin >> password;
+                                            //     newEmployee->setPass(password);
+                                            //     cout << "Password set successfully.\n";
+                                            //     break;
+                                            // }
+                                            // else if(a1==2){
+                                            //     break;
+                                            // }
+                                            // else{
+                                            //     cout<<"Wrong Input\n";
+                                            // }
                                         }
                                         break;
                                     }
@@ -1068,17 +1192,19 @@ int main() {
                             }
 
                             case '2': {
-                                int user_type;
+                                char user_type;
+                                cout<<"---------------------------------------------------------------------\n";
                                 cout << "Enter your user type:\n";
                                 cout << "1. Customer\n";
                                 cout << "2. Employee\n";
+                                cout<<"---------------------------------------------------------------------\n";
                                 cin >> user_type;
 
                                 
 
                                 // Search for the user
                                 switch (user_type) {
-                                    case 1: { 
+                                    case '1': { 
                                         int id;
                                         cout << "Enter the ID of the user you want to update: ";
                                         cin >> id;
@@ -1096,7 +1222,7 @@ int main() {
                                                 cout << "1. Change Name\n";
                                                 cout << "2. Change Customer Record / Rating\n";
                                                 cout << "3. Change Customer Password\n";
-                                                cout << "4. Nothing\n";
+                                                cout << "4. Nothing / Go Back \n";
                                                 cout << "*********************************************************************\n";
                                                 char c1;
                                                 cin >> c1;
@@ -1139,7 +1265,7 @@ int main() {
                                         }
                                         break;
                                     }
-                                    case 2:{
+                                    case '2':{
                                         int id;
                                         cout << "Enter the ID of the user you want to update: ";
                                         cin >> id;
@@ -1209,10 +1335,12 @@ int main() {
 
                             case '3': {
 
-                                int user_type;
+                                char user_type;
+                                cout<<"---------------------------------------------------------------------\n";
                                 cout << "Enter your delete user type:\n";
                                 cout << "1. Customer\n";
                                 cout << "2. Employee\n";
+                                cout<<"---------------------------------------------------------------------\n";
                                 cin >> user_type;
 
                                 // Code to delete a user
@@ -1220,7 +1348,7 @@ int main() {
                                 cout << "Enter the ID of the user you want to delete: ";
                                 cin >> deleteId;
                                 switch (user_type) {
-                                    case 1: { 
+                                    case '1': { 
                                         Customer* customerToDelete = Customer::searchCustomer(deleteId);
                                             if (customerToDelete) {
                                                 // Remove the customer from the database
@@ -1232,7 +1360,7 @@ int main() {
                                             }
                                             break;
                                             }
-                                    case 2: {
+                                    case '2': {
                                         Employee* employeeToDelete = Employee::searchEmployee(deleteId);
                                             if (employeeToDelete) {
                                                 // Remove the Employee from the database
@@ -1256,10 +1384,12 @@ int main() {
                                 string model, condition;
                                 
                                 // Prompt the user to enter the details of the car
+                                cout<<"---------------------------------------------------------------------\n";
                                 cout << "Enter the model of the car: ";
                                 cin >> model;
                                 cout << "Enter the condition of the car: ";
                                 cin >> condition;
+                                cout<<"---------------------------------------------------------------------\n";
 
                                 // Create a new Car object
                                 Car* newCar = new Car(model, condition);
@@ -1332,10 +1462,12 @@ int main() {
                                 break;
                             }
                             case '7': {
-                                int user_type;
+                                char user_type;
+                                cout<<"---------------------------------------------------------------------\n";
                                 cout << "Enter your user type:\n";
                                 cout << "1. Customer\n";
                                 cout << "2. Employee\n";
+                                cout<<"---------------------------------------------------------------------\n";
                                 cin >> user_type;
 
                                 int user_id;
@@ -1343,7 +1475,7 @@ int main() {
                                 cin >> user_id;
 
                                 switch (user_type) {
-                                    case 1: { // Customer
+                                    case '1': { // Customer
                                         Customer* customer = Customer::searchCustomer(user_id);
                                         if (customer) {
                                             customer->browseRentedCars();
@@ -1352,17 +1484,21 @@ int main() {
                                         }
                                         break;
                                     }
-                                    case 2: { // Employee
+                                    case '2': { // Employee
                                         Employee* employee = Employee::searchEmployee(user_id);
                                         if (employee) {
                                             employee->browseRentedCars();
                                         } else {
+                                            cout<<"---------------------------------------------------------------------\n";
                                             cout << "Employee not found.\n";
+                                            cout<<"---------------------------------------------------------------------\n";
                                         }
                                         break;
                                     }
                                     default:
+                                    cout<<"---------------------------------------------------------------------\n";
                                         cout << "Invalid user type.\n";
+                                        cout<<"---------------------------------------------------------------------\n";
                                 }
                                 break;
                             }
@@ -1371,6 +1507,7 @@ int main() {
                                 for (const auto& pair : Customer::customerDatabase) {
                                     Customer* user = pair.second;
                                     cout << "User ID: " << user->getId() << endl; // Assuming id is public
+                                    cout<< "User Name:" << user->getName() <<endl;
                                     cout << "Cars rented:\n";
                                     for (auto car : user->getRentedCars()) {
                                         // check karLENA KI MODEL PRINT HO RHA HAI YA NHI 
@@ -1381,6 +1518,7 @@ int main() {
                                 for (const auto& pair : Employee::employeeDatabase) {
                                     Employee* user = pair.second;
                                     cout << "User ID: " << user->getId() << endl; // Assuming id is public
+                                    cout<< "User Name:" << user->getName() <<endl;
                                     cout << "Cars rented:\n";
                                     for (auto car : user->getRentedCars()) {
                                         // check karLENA KI MODEL PRINT HO RHA HAI YA NHI 
@@ -1394,13 +1532,13 @@ int main() {
 
                             case '9': {
                                 // Code to view all users
-                                cout << "List of all users:\n";
+                                cout << "List of all users with their information:\n";
                                 for (const auto& pair : Customer::customerDatabase) {
-                                    cout << "User ID: " << pair.first << ", Name: " << pair.second->getName() << endl;
+                                    cout << "User ID: " << pair.first << ", Name: " << pair.second->getName()<< ", Password: " << pair.second->getPass() << endl;
                                     // Assuming you have a getName() function to retrieve the name of the customer
                                 }
                                 for (const auto& pair : Employee::employeeDatabase) {
-                                    cout << "User ID: " << pair.first << ", Name: " << pair.second->getName() << endl;
+                                    cout << "User ID: " << pair.first << ", Name: " << pair.second->getName()<< ", Password: " << pair.second->getPass() << endl;
                                     // Assuming you have a getName() function to retrieve the name of the employee
                                 }
 
@@ -1415,7 +1553,9 @@ int main() {
                                     if (car->isAvailable()) {
                                         cout << ", Available: Yes\n";
                                     } else {
-                                        cout << ", Available: No, Return Date: " << car->getReturnDate() << endl;
+                                        cout << ", Available: No : ";
+                                        car->showDueDate();
+                                        cout<<endl;
                                     }
                                 }
                                 break;
@@ -1432,13 +1572,18 @@ int main() {
                                     Car* curr_car=car_pair.second;
                                     if (curr_car->getModel() == model) {
                                         found = true;
-                                        cout << "Due date for car " << model << ": " << curr_car->getReturnDate() << endl;
+                                        cout << "Due date for car " << model << ": ";
+                                        curr_car->showDueDate();
+                                        cout<<endl;
+
                                         break;
                                     }
                                 }
 
                                 if (!found) {
+                                    cout<<"---------------------------------------------------------------------\n";
                                     cout << "You have not rented a car with that model.\n";
+                                    cout<<"---------------------------------------------------------------------\n";
                                 }
                                 break;
                             }
@@ -1449,7 +1594,9 @@ int main() {
                                 break;
                             }
                             default:
+                            cout<<"---------------------------------------------------------------------\n";
                                 cout << "Invalid choice. Please try again.\n";
+                                cout<<"---------------------------------------------------------------------\n";
                                 break;
                         }
                     }// while wala code
@@ -1457,19 +1604,25 @@ int main() {
 
                 else{
                     cout<<"---------------------------------------------------------------------\n";
-                    cout<< "\n\n Wrong Password ; Directing to Home Page\n\n" <<endl;
+                    cout<< "\n\n Wrong Password ; Directing to Login Page\n\n" <<endl;
                     cout<<"---------------------------------------------------------------------\n";
                     continue;
                 }
             }
+            else if(cinput2=='B'){
+                cout<< "\n\n Directing to System Page\n\n" <<endl;
+                break;
+            }
             else{
                 cout<<"---------------------------------------------------------------------\n";
-                cout<< "\n\n Wrong Input ; Directing to Home Page\n\n" <<endl;
+                cout<< "\n\n Wrong Input in Login Page\n\n" <<endl;
                 cout<<"---------------------------------------------------------------------\n";
                 continue;
             }
+            }
         }
-        else if(cinput1==2){
+        
+        else if(cinput1=='X'){
             cout<<"---------------------------------------------------------------------\n";
             exitProgram = true;
             cout<< "\n\nProgram Exited" <<endl;
@@ -1479,7 +1632,7 @@ int main() {
         }
         else{
             cout<<"---------------------------------------------------------------------\n";
-            cout<< "\n\n Wrong Input \n\n" <<endl;
+            cout<< "\n\n Wrong Input in System Page\n\n" <<endl;
             cout<<"---------------------------------------------------------------------\n";
             continue;
         }
